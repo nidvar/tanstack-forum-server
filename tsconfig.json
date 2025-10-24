@@ -10,7 +10,8 @@
     "exactOptionalPropertyTypes": true,
     "strict": true,
     "skipLibCheck": true,
-    "esModuleInterop": true         // <-- makes import/export compatible with require
+    "esModuleInterop": true,         // <-- makes import/export compatible with require
+    "resolveJsonModule": true
   },
   "include": ["server.ts", "routes/**/*.ts", "db/**/*.ts"]
 }
