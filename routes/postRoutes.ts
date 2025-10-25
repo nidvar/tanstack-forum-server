@@ -2,17 +2,49 @@ import express from 'express';
 
 const router = express.Router();
 
-router.get('/', (req, res)=>{
-    throw new Error('super error')
-    res.json({message: 'getting all posts'});
+import Post from '../models/Post';
+
+// types
+type singlePost = {
+    title: string
+    content: string
+    email: string
+    username: string
+    createdAt?: string
+    updatedAt?: string
+    tags?: []
+}
+
+
+// grab all posts
+router.get('/', async (req, res)=>{
+    const data: singlePost[] = await Post.find({});
+    res.json(data);
 });
 
-router.get('/:id', (req, res)=>{
-    res.json({message: 'getting single post'});
+
+// grab single posts
+router.get('/:id', async (req, res)=>{
+    const data: singlePost | null = await Post.findById({_id: req.params.id})
+    res.json(data);
 });
 
-router.post('/', (req, res)=>{
-    res.json({message: 'post request works'});
+
+// post a single post
+router.post('/', async (req, res)=>{
+    try{
+        const data: singlePost = {
+            title: req.body.title,
+            content: req.body.content,
+            username: 'batman',
+            email: 'bat@mail.com',
+            tags: req.body.tags,
+        };
+        await Post.create(data);
+        res.json({message: 'post request works'});
+    }catch(error){
+        console.log('create new post error ==> ', error)
+    }
 });
 
 export default router;
