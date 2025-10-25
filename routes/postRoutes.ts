@@ -47,4 +47,26 @@ router.post('/', async (req, res)=>{
     }
 });
 
+router.delete('/:id', async (req, res)=>{
+    try{
+        await Post.findByIdAndDelete({_id: req.params.id});
+        return res.json({message: 'post deleted'});
+    }catch(error){
+        console.log('delete post error ==> ', error)
+    }
+});
+
+router.put('/:id', async (req, res)=>{
+    const updatedData = {
+        title: req.body.title,
+        content: req.body.content,
+        tags: req.body.tags,
+    }
+    try{
+        await Post.findByIdAndUpdate(req.params.id, updatedData);
+    }catch(error){
+        console.log('delete post error ==> ', error)
+    }
+})
+
 export default router;
