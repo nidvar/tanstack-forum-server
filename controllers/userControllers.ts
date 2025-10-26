@@ -21,7 +21,15 @@ export const register = async function(req: Request, res: Response){
 
         User.create(user);
     }catch(error){
-        console.log('create new user error ===>', error);
+        console.log('register error ===>', error);
         return res.json(error)
+    }
+};
+
+export const login = async function(req: Request, res: Response){
+    try{
+        console.log('body ====================== ',req.body);
+    }catch(error){
+        console.log('login error ===>', error);
     }
 }

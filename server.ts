@@ -24,7 +24,7 @@ connectDB();
 
 // -- Routes
 app.use('/posts', router);
-app.use('/register', userRouter);
+app.use('/', userRouter);
 
 app.listen(PORT, ()=>{
     console.log('TypeScript server running on PORT ' + PORT);
