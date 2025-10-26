@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 
 // -- First party imports
 import router from './routes/postRoutes';
+import userRouter from './routes/userRoutes';
 import {connectDB} from './config/db';
 
 // -- Load environment variables
@@ -23,6 +24,7 @@ connectDB();
 
 // -- Routes
 app.use('/posts', router);
+app.use('/register', userRouter);
 
 app.listen(PORT, ()=>{
     console.log('TypeScript server running on PORT ' + PORT);
