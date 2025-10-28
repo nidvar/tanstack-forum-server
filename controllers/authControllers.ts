@@ -80,6 +80,8 @@ export const logout = async function(req: Request, res: Response){
         clearCookie(res, 'refreshTokoen');
         clearCookie(res, 'accessToken');
 
+        return res.json({message: 'logged out'});
+
     }catch(error){
         console.log('logout error =======> ', error)
         return res.status(500).json({error: 'logout error'})
