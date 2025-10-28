@@ -1,10 +1,5 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 
-console.log(' JWT ================ ********************************** >>>>>', jwt);
-
-const info = process.env;
-console.log(' INFO =============== >>>>>>>>>>>>>>>>>>>', info);
-
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET as string;
 const JWT_ACCESS_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN || '10m';
 
@@ -36,5 +31,14 @@ export const clearCookie = function(response: any, name: string){
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
+    });
+}
+
+export const createNewCookie = function(response: any, name: string, token: string, age: number): void{
+    response.cookie(name, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: age,
     });
 }
