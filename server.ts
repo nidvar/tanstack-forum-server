@@ -3,13 +3,15 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+// -- Load environment variables
+dotenv.config();
+
 // -- First party imports
 import router from './routes/postRoutes';
 import userRouter from './routes/userRoutes';
 import {connectDB} from './config/db';
 
-// -- Load environment variables
-dotenv.config();
+
 
 // -- Configuration
 const PORT = process.env.PORT || 8000;

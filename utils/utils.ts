@@ -1,26 +1,28 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
-const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET as string;
-const JWT_ACCESS_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN || '10m';
-
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string;
-const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '3h';
+const getSecrets = function(){
+    if(process.env.JWT_ACCESS_SECRET == undefined || process.env.JWT_REFRESH_SECRET == undefined){
+        throw new Error('env did not load variables')
+    }
+}
 
 export const generateToken = function(payload: object, type: string){
+    getSecrets();
     if(type === 'access'){
-        return jwt.sign(payload, JWT_ACCESS_SECRET, {expiresIn: JWT_ACCESS_EXPIRES_IN as any});
+        return jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, {expiresIn: '10m'});
     }else if(type === 'refresh'){
-        return jwt.sign(payload, JWT_REFRESH_SECRET, {expiresIn: JWT_REFRESH_EXPIRES_IN as any});
+        return jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, {expiresIn: '3h'});
     }else{
         throw new Error('Invalid Token');
     }
 }
 
 export const verifyToken = function(payload: string, type: string){
+    getSecrets();
     if(type === 'access'){
-        return jwt.verify(payload, JWT_ACCESS_SECRET);
+        return jwt.verify(payload, process.env.JWT_ACCESS_SECRET!);
     }else if(type === 'refresh'){
-        return jwt.verify(payload, JWT_REFRESH_SECRET);
+        return jwt.verify(payload, process.env.JWT_REFRESH_SECRET!);
     }else{
         throw new Error('Invalid Token');
     }

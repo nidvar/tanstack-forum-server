@@ -43,10 +43,10 @@ export const login = async function(req: Request, res: Response){
             const ok = await bcrypt.compare(req.body.password, user.password);
             if(ok){
 
-                const accessToken = generateToken({id: user._id, email: user.email},'access');
+                const accessToken = generateToken({id: user._id, email: user.email}, 'access');
                 createNewCookie(res, 'accessToken', accessToken, 10 * 60 * 1000);
 
-                const refreshToken = generateToken({id: user._id, email: user.email},'refresh');
+                const refreshToken = generateToken({id: user._id, email: user.email}, 'refresh');
                 createNewCookie(res, 'refreshToken', refreshToken, 3* 60 * 60 * 1000);
 
                 return res.json({
