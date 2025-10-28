@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 
 import User from '../models/User';
+import { generateToken, clearCookie } from '../utils/utils';
 
 import bcrypt from "bcryptjs";
 
@@ -42,7 +43,30 @@ export const login = async function(req: Request, res: Response){
         if(user){
             const ok = await bcrypt.compare(req.body.password, user.password);
             if(ok){
-                return res.json({message:'login successful!'});
+
+                const accessToken = generateToken({id: user._id, email: user.email},'access');
+
+                res.cookie('accessToken',accessToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict',
+                    maxAge: 10 * 60 * 1000,
+                });
+
+                const refreshToken = generateToken({id: user._id, email: user.email},'refresh');
+
+                res.cookie('refreshToken', refreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict',
+                    maxAge: 3* 60 * 60 * 1000,
+                });
+
+                return res.json({
+                    message:'login successful!',
+                    user: {id: user._id, email: user.email}
+                });
+
             }else{
                 return res.status(409).json({error:'Incorrect username or password'});
             }
@@ -53,4 +77,28 @@ export const login = async function(req: Request, res: Response){
         console.log('login error ===>', error);
         return res.status(500).json({ error: 'Server error' });
     }
+}
+
+export const logout = async function(req: Request, res: Response){
+
+    try{
+        const user = await User.findOne({refreshToken: req.cookies.refreshToken});
+        if(user){
+            const refreshToken = req.cookies.refreshToken;
+            await User.updateOne(
+                { refreshToken: refreshToken },
+                { $pull: { refreshToken: refreshToken } }
+            );
+        };
+
+        clearCookie(res, 'refreshTokoen');
+        
+        clearCookie(res, 'accessToken');
+
+    }catch(error){
+        console.log('logout error =======> ', error)
+        return res.status(500).json({error: 'logout error'})
+    }
+
+    
 }

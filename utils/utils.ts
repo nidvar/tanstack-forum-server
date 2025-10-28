@@ -9,7 +9,7 @@ const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET as string;
 const JWT_ACCESS_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN || '10m';
 
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string;
-const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '1h';
+const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '3h';
 
 export const generateToken = function(payload: object, type: string){
     if(type === 'access'){
@@ -29,4 +29,12 @@ export const verifyToken = function(payload: string, type: string){
     }else{
         throw new Error('Invalid Token');
     }
+}
+
+export const clearCookie = function(response: any, name: string){
+    response.clearCookie(name ,{
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
 }
