@@ -14,8 +14,15 @@ type singlePostType = {
 
 // grab all posts
 export const allPosts = async function(req: Request, res: Response){
-    const data: singlePostType[] = await Post.find({});
-    res.json(data);
+    try{
+        const data: singlePostType[] = await Post.find({});
+        res.json(data);
+    }catch(error: any){
+        return res.status(500).json({
+            message: error.message,
+            name: error.name
+        })
+    }
 }
 
 // grab single posts
@@ -30,14 +37,17 @@ export const createSinglePost = async function(req: Request, res: Response){
         const data: singlePostType = {
             title: req.body.title,
             content: req.body.content,
-            username: 'batman',
-            email: 'bat@mail.com',
+            username: req.body.username,
+            email: req.body.email,
             tags: req.body.tags,
         };
         await Post.create(data);
         res.json({message: 'post request works'});
-    }catch(error){
-        console.log('create new post error ==> ', error)
+    }catch(error: any){
+        return res.status(500).json({
+            message: error.message,
+            name: error.name
+        })
     }
 };
 
@@ -46,8 +56,11 @@ export const deleteSinglePost = async function(req: Request, res: Response){
     try{
         await Post.findByIdAndDelete({_id: req.params.id});
         return res.json({message: 'post deleted'});
-    }catch(error){
-        console.log('delete post error ==> ', error)
+    }catch(error: any){
+        return res.status(500).json({
+            message: error.message,
+            name: error.name
+        })
     }
 };
 
@@ -60,7 +73,10 @@ export const updateSinglePost = async function(req: Request, res: Response){
     }
     try{
         await Post.findByIdAndUpdate(req.params.id, updatedData);
-    }catch(error){
-        console.log('delete post error ==> ', error)
+    }catch(error: any){
+        return res.status(500).json({
+            message: error.message,
+            name: error.name
+        })
     }
 };

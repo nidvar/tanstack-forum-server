@@ -1,13 +1,13 @@
 import jwt from 'jsonwebtoken';
 
-const getSecrets = function(){
+const secretCheck = function(){
     if(process.env.JWT_ACCESS_SECRET == undefined || process.env.JWT_REFRESH_SECRET == undefined){
         throw new Error('env did not load variables')
     }
 }
 
 export const generateToken = function(payload: object, type: string){
-    getSecrets();
+    secretCheck();
     if(type === 'access'){
         return jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, {expiresIn: '10m'});
     }else if(type === 'refresh'){
@@ -18,7 +18,7 @@ export const generateToken = function(payload: object, type: string){
 }
 
 export const verifyToken = function(payload: string, type: string){
-    getSecrets();
+    secretCheck();
     if(type === 'access'){
         return jwt.verify(payload, process.env.JWT_ACCESS_SECRET!);
     }else if(type === 'refresh'){
@@ -29,7 +29,7 @@ export const verifyToken = function(payload: string, type: string){
 }
 
 export const clearCookie = function(response: any, name: string){
-    response.clearCookie(name ,{
+    response.clearCookie(name, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'

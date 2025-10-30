@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import {Request, Response } from "express";
 
 import User from '../models/User';
-import { generateToken, clearCookie, createNewCookie } from '../utils/utils';
+import { generateToken, clearCookie, createNewCookie, verifyToken } from '../utils/utils';
 
 import bcrypt from "bcryptjs";
 
@@ -49,6 +49,10 @@ export const login = async function(req: Request, res: Response){
                 const refreshToken = generateToken({id: user._id, email: user.email}, 'refresh');
                 createNewCookie(res, 'refreshToken', refreshToken, 3* 60 * 60 * 1000);
 
+                user.refreshToken.push(refreshToken);
+
+                user.save();
+
                 return res.json({
                     message:'login successful!',
                     user: {id: user._id, email: user.email}
@@ -68,16 +72,22 @@ export const login = async function(req: Request, res: Response){
 
 export const logout = async function(req: Request, res: Response){
     try{
+        const refreshToken = req.cookies.refreshToken;
         const user = await User.findOne({refreshToken: req.cookies.refreshToken});
-        if(user){
-            const refreshToken = req.cookies.refreshToken;
-            await User.updateOne(
-                { refreshToken: refreshToken },
-                { $pull: { refreshToken: refreshToken } }
-            );
-        };
 
-        clearCookie(res, 'refreshTokoen');
+        if (user) {
+            user.refreshToken = user.refreshToken.filter((item) => {
+                if (item !== refreshToken) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            await user.save();
+        }
+
+        clearCookie(res, 'refreshToken');
         clearCookie(res, 'accessToken');
 
         return res.json({message: 'logged out'});
@@ -85,5 +95,17 @@ export const logout = async function(req: Request, res: Response){
     }catch(error){
         console.log('logout error =======> ', error)
         return res.status(500).json({error: 'logout error'})
+    }
+}
+
+export const authMe = async function(req: Request, res: Response){
+    console.log('auth me')
+    const accessToken = req.cookies.accessToken;
+    if(accessToken){
+        const verification = verifyToken(accessToken, 'access');
+        return res.json({ user: verification });
+    }else{
+        console.log('there is no token')
+        return res.json({ user: null });
     }
 }
