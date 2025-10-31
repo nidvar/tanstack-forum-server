@@ -31,7 +31,6 @@ export const register = async function(req: Request, res: Response){
         await User.create(user);
         return res.json({ message: 'User registered successfully' });
     }catch(error){
-        console.log('register error ===>', error);
         return res.status(500).json({ error: 'Server error' });
     }
 };
@@ -65,47 +64,33 @@ export const login = async function(req: Request, res: Response){
             return res.status(409).json({error:'Incorrect username or password'});
         }
     }catch(error){
-        console.log('login error ===>', error);
         return res.status(500).json({ error: 'Server error' });
     }
 }
 
 export const logout = async function(req: Request, res: Response){
     try{
-        const refreshToken = req.cookies.refreshToken;
         const user = await User.findOne({refreshToken: req.cookies.refreshToken});
-
         if (user) {
-            user.refreshToken = user.refreshToken.filter((item) => {
-                if (item !== refreshToken) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-
+            user.refreshToken = [];
             await user.save();
         }
-
         clearCookie(res, 'refreshToken');
         clearCookie(res, 'accessToken');
 
         return res.json({message: 'logged out'});
 
     }catch(error){
-        console.log('logout error =======> ', error)
         return res.status(500).json({error: 'logout error'})
     }
 }
 
 export const authMe = async function(req: Request, res: Response){
-    console.log('auth me')
     const accessToken = req.cookies.accessToken;
     if(accessToken){
         const verification = verifyToken(accessToken, 'access');
         return res.json({ user: verification });
     }else{
-        console.log('there is no token')
         return res.json({ user: null });
     }
 }

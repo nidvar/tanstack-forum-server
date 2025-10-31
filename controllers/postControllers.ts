@@ -1,5 +1,6 @@
 import Post from '../models/Post';
 import { Request, Response } from "express";
+import User from '../models/User';
 
 // types
 type singlePostType = {
@@ -33,16 +34,22 @@ export const singlePost = async function(req: Request, res: Response){
 
 // post a single post
 export const createSinglePost = async function(req: Request, res: Response){
+    console.log('create single post' + Math.random())
     try{
-        const data: singlePostType = {
-            title: req.body.title,
-            content: req.body.content,
-            username: req.body.username,
-            email: req.body.email,
-            tags: req.body.tags,
-        };
-        await Post.create(data);
-        res.json({message: 'post request works'});
+        const user = await User.findOne({ email: res.locals.email});
+        if(user){
+            const data: singlePostType = {
+                title: req.body.title,
+                content: req.body.content,
+                username: user.username,
+                email: user.email,
+                tags: req.body.tags,
+            };
+            await Post.create(data);
+            res.json({message: 'post request works'});
+        }else{
+            throw new Error('user not found while creating single post')
+        }
     }catch(error: any){
         return res.status(500).json({
             message: error.message,
