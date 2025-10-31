@@ -15,6 +15,14 @@ const PostSchema = new Schema({
         type:String,
         required:true,
     },
+    img: {
+        url: {
+            type: String,
+        },
+        public_id: {
+            type: String,
+        },
+    },
     tags: {
         type: [String],
         default: []
@@ -22,6 +30,12 @@ const PostSchema = new Schema({
     comments: {
         type: [String],
         default: []
+    },
+    likes: {
+        type: [String]
+    },
+    dislikes: {
+        type: [String]
     },
     createdAt:{
         type:Date,
