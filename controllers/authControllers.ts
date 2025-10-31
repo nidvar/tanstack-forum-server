@@ -37,29 +37,36 @@ export const register = async function(req: Request, res: Response){
 
 export const login = async function(req: Request, res: Response){
     try{
-        const user = await User.findOne({ email: req.body.email });
-        if(user){
-            const ok = await bcrypt.compare(req.body.password, user.password);
-            if(ok){
-
-                const accessToken = generateToken({id: user._id, email: user.email}, 'access');
-                createNewCookie(res, 'accessToken', accessToken, 10 * 60 * 1000);
-
-                const refreshToken = generateToken({id: user._id, email: user.email}, 'refresh');
-                createNewCookie(res, 'refreshToken', refreshToken, 3* 60 * 60 * 1000);
-
-                user.refreshToken.push(refreshToken);
-
-                user.save();
-
-                return res.json({
-                    message:'login successful!',
-                    user: {id: user._id, email: user.email}
-                });
-
-            }else{
-                return res.status(409).json({error:'Incorrect username or password'});
+        if(req.cookies.accessToken){
+            const verification = verifyToken(req.cookies.accessToken, 'access', 'login');
+            if(verification != null){
+                return res.status(409).json({error:'Already logged In'});
             }
+        }
+        const user = await User.findOne({ email: req.body.email });
+
+        if (!user) {
+            return res.status(409).json({error:'Incorrect username or password'});
+        }
+
+        const ok = await bcrypt.compare(req.body.password, user.password);
+
+        if(ok){
+            const accessToken = generateToken({id: user._id, email: user.email}, 'access');
+            createNewCookie(res, 'accessToken', accessToken, 10 * 60 * 1000);
+
+            const refreshToken = generateToken({id: user._id, email: user.email}, 'refresh');
+            createNewCookie(res, 'refreshToken', refreshToken, 3* 60 * 60 * 1000);
+
+            user.refreshToken.push(refreshToken);
+
+            await user.save();
+
+            return res.json({
+                message:'login successful!',
+                user: {id: user._id, email: user.email}
+            });
+
         }else{
             return res.status(409).json({error:'Incorrect username or password'});
         }

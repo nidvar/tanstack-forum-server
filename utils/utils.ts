@@ -17,13 +17,21 @@ export const generateToken = function(payload: object, type: string){
     }
 }
 
-export const verifyToken = function(payload: string, type: string){
+export const verifyToken = function(payload: string, type: string, login?: string){
     secretCheck();
+    if(login === 'login'){
+        try{
+            return jwt.verify(payload, process.env.JWT_ACCESS_SECRET!);
+        }catch(error){
+            return null
+        }
+    };
     if(type === 'access'){
         return jwt.verify(payload, process.env.JWT_ACCESS_SECRET!);
     }else if(type === 'refresh'){
         return jwt.verify(payload, process.env.JWT_REFRESH_SECRET!);
     }else{
+        // IMPORTANT !!! MUST THROW ERROR for middleware !
         throw new Error('Invalid Token');
     }
 }
