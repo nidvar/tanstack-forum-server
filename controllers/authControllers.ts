@@ -100,25 +100,30 @@ export const authMe = async function(req: Request, res: Response){
         };
         const verification = verifyToken(req.cookies.accessToken, 'access');
         if(verification && typeof verification !== 'string'){
+
             const userData = await Promise.all([
                 Post.find({ email: verification.email }),
                 Comment.find({ email: verification.email }),
                 Reply.find({ email: verification.email }),
                 User.findOne({ email: verification.email })
             ]);
-            const userPostData = [
-                userData[0],
-                userData[1],
-                userData[2]
-            ];
-            const user = userData[3];
-            return res.json({ loggedIn: true, data: {user, userPostData} });
+
+            const data = {
+                email: verification.email,
+                id: verification.id,
+                profilePic: userData[3]?.profilePic,
+                postsData: [
+                    userData[0],
+                    userData[1],
+                    userData[2]
+                ]
+            }
+
+            return res.json({ loggedIn: true, data: data });
         }else{
             return res.json({ user: null });
         }
     }catch(error){
         return res.status(500).json({ error: 'Internal server error' });
     }
-
-
 }
