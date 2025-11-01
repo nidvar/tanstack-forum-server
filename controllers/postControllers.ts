@@ -89,7 +89,7 @@ export const updateSinglePost = async function(req: Request, res: Response){
 };
 
 export const likeOrDislike = async function(req: Request, res: Response){
-    console.log(req.body);
+    console.log('=========== body ' + Math.random(),req.body);
 
     return res.json({message: 'working!'})
 };

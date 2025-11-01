@@ -9,6 +9,26 @@ import { generateToken, clearCookie, createNewCookie, verifyToken } from '../uti
 
 import bcrypt from 'bcryptjs';
 
+const getUserData = async function(email:string){
+    const userData = await Promise.all([
+        Post.find({ email: email }),
+        Comment.find({ email: email }),
+        Reply.find({ email: email }),
+        User.findOne({ email: email })
+    ]);
+
+    return {
+        username: userData[3]?.username,
+        email: email,
+        profilePic: userData[3]?.profilePic,
+        postsData: [
+            userData[0],
+            userData[1],
+            userData[2]
+        ]
+    }
+}
+
 export const register = async function(req: Request, res: Response){
     try{
         const existingUser = await Promise.all([
@@ -66,7 +86,7 @@ export const login = async function(req: Request, res: Response){
 
             await user.save();
 
-            return res.json({message:'login successful!'});
+            return res.json({message:'login successful!', data: await getUserData(user.email)});
 
         }else{
             return res.status(409).json({error:'Incorrect username or password'});
@@ -100,26 +120,7 @@ export const authMe = async function(req: Request, res: Response){
         };
         const verification = verifyToken(req.cookies.accessToken, 'access');
         if(verification && typeof verification !== 'string'){
-
-            const userData = await Promise.all([
-                Post.find({ email: verification.email }),
-                Comment.find({ email: verification.email }),
-                Reply.find({ email: verification.email }),
-                User.findOne({ email: verification.email })
-            ]);
-
-            const data = {
-                email: verification.email,
-                id: verification.id,
-                profilePic: userData[3]?.profilePic,
-                postsData: [
-                    userData[0],
-                    userData[1],
-                    userData[2]
-                ]
-            }
-
-            return res.json({ loggedIn: true, data: data });
+            return res.json({ loggedIn: true, data: await getUserData(verification.email) });
         }else{
             return res.json({ user: null });
         }
