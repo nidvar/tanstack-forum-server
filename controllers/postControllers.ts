@@ -11,6 +11,10 @@ type singlePostType = {
     createdAt?: string
     updatedAt?: string
     tags?: []
+    img:{
+        url: string,
+        public_id: string
+    }
 }
 
 // grab all posts
@@ -28,8 +32,32 @@ export const allPosts = async function(req: Request, res: Response){
 
 // grab single posts
 export const singlePost = async function(req: Request, res: Response){
-    const data: singlePostType | null = await Post.findById({_id: req.params.id})
-    res.json(data);
+    try{
+        const post: singlePostType | null = await Post.findById({_id: req.params.id});
+
+        if(!post){
+            throw new Error('no post found');
+        };
+
+        const user = await User.findOne({ username: post.username});
+
+        const payload = {
+            data: post,
+            postAuthor: {
+                username: user?.username || '',
+                createdAt: user?.createdAt || '',
+                profilePic: user?.profilePic || '',
+            }
+        }
+
+        return res.json(payload);
+
+    }catch(error: any){
+        return res.status(500).json({
+            message: error.message,
+            name: error.name
+        })
+    }
 };
 
 // post a single post
@@ -44,6 +72,10 @@ export const createSinglePost = async function(req: Request, res: Response){
                 username: user.username,
                 email: user.email,
                 tags: req.body.tags,
+                img: {
+                    url: 'https://picsum.photos/200',
+                    public_id: ''
+                }
             };
             await Post.create(data);
             res.json({message: 'post request works'});

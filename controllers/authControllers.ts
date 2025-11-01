@@ -2,7 +2,7 @@ import {Request, Response } from 'express';
 
 import User from '../models/User';
 import Post from '../models/Post';
-import Comment from '../models/Comment';
+import {Comment} from '../models/Comment';
 import Reply from '../models/Reply';
 
 import { generateToken, clearCookie, createNewCookie, verifyToken } from '../utils/utils';
@@ -49,7 +49,8 @@ export const register = async function(req: Request, res: Response){
         const user = {
             username: req.body.username,
             email: req.body.email,
-            password: hash
+            password: hash,
+            profilePic: 'https://robohash.org/4.123123=' + Math.random()*10
         };
 
         await User.create(user);
