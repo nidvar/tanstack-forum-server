@@ -88,6 +88,12 @@ export const updateSinglePost = async function(req: Request, res: Response){
     }
 };
 
+export const addComment = async function(req: Request, res: Response){
+    console.log('============= comment', + Math.random(), req.body);
+
+    return res.json({message: 'comment recieved'})
+}
+
 export const likeOrDislike = async function(req: Request, res: Response){
     console.log('=========== body ' + Math.random(),req.body);
 
