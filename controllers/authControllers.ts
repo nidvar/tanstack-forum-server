@@ -1,6 +1,10 @@
 import {Request, Response } from "express";
 
 import User from '../models/User';
+import Post from '../models/Post';
+import Comment from '../models/Comment';
+import Reply from '../models/Reply';
+
 import { generateToken, clearCookie, createNewCookie, verifyToken } from '../utils/utils';
 
 import bcrypt from "bcryptjs";
@@ -49,6 +53,12 @@ export const login = async function(req: Request, res: Response){
             return res.status(409).json({error:'Incorrect username or password'});
         }
 
+        const userPosts = await Promise.all([
+            Post.find({ email: req.body.email }),
+            Comment.find({ email: req.body.email }),
+            Reply.find({ email: req.body.email }),
+        ]);
+
         const ok = await bcrypt.compare(req.body.password, user.password);
 
         if(ok){
@@ -64,7 +74,7 @@ export const login = async function(req: Request, res: Response){
 
             return res.json({
                 message:'login successful!',
-                user: {id: user._id, email: user.email}
+                user: {id: user._id, email: user.email, profilePic: user.profilePic, userData: userPosts}
             });
 
         }else{

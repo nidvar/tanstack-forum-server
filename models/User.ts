@@ -19,6 +19,10 @@ const UserSchema = new mongoose.Schema({
         required: true,
         minlength: 6
     },
+    profilePic: {
+        type: String,
+        default: 'blank_profile.jpg',
+    },
     refreshToken: [
         {
             type: String
