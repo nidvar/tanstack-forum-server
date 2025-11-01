@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-const CommentSchema = new Schema({
+export const CommentSchema = new Schema({
     postId: {
         type: String,
         required: true
@@ -21,6 +21,4 @@ const CommentSchema = new Schema({
     },
 }, {timestamps: true});
 
-const Comment = mongoose.model('Comment', CommentSchema);
-
-export default Comment;
+export const Comment = mongoose.model('Comment', CommentSchema);
