@@ -1,4 +1,4 @@
-import {Request, Response } from "express";
+import {Request, Response } from 'express';
 
 import User from '../models/User';
 import Post from '../models/Post';
@@ -7,7 +7,7 @@ import Reply from '../models/Reply';
 
 import { generateToken, clearCookie, createNewCookie, verifyToken } from '../utils/utils';
 
-import bcrypt from "bcryptjs";
+import bcrypt from 'bcryptjs';
 
 export const register = async function(req: Request, res: Response){
     try{
@@ -53,12 +53,6 @@ export const login = async function(req: Request, res: Response){
             return res.status(409).json({error:'Incorrect username or password'});
         }
 
-        const userPosts = await Promise.all([
-            Post.find({ email: req.body.email }),
-            Comment.find({ email: req.body.email }),
-            Reply.find({ email: req.body.email }),
-        ]);
-
         const ok = await bcrypt.compare(req.body.password, user.password);
 
         if(ok){
@@ -72,10 +66,7 @@ export const login = async function(req: Request, res: Response){
 
             await user.save();
 
-            return res.json({
-                message:'login successful!',
-                user: {id: user._id, email: user.email, profilePic: user.profilePic, userData: userPosts}
-            });
+            return res.json({message:'login successful!'});
 
         }else{
             return res.status(409).json({error:'Incorrect username or password'});
@@ -103,11 +94,31 @@ export const logout = async function(req: Request, res: Response){
 }
 
 export const authMe = async function(req: Request, res: Response){
-    const accessToken = req.cookies.accessToken;
-    if(accessToken){
-        const verification = verifyToken(accessToken, 'access');
-        return res.json({ user: verification });
-    }else{
-        return res.json({ user: null });
+    try{
+        if(!req.cookies.accessToken){
+            return res.json({ user: null });
+        };
+        const verification = verifyToken(req.cookies.accessToken, 'access');
+        if(verification && typeof verification !== 'string'){
+            const userData = await Promise.all([
+                Post.find({ email: verification.email }),
+                Comment.find({ email: verification.email }),
+                Reply.find({ email: verification.email }),
+                User.findOne({ email: verification.email })
+            ]);
+            const userPostData = [
+                userData[0],
+                userData[1],
+                userData[2]
+            ];
+            const user = userData[3];
+            return res.json({ loggedIn: true, data: {user, userPostData} });
+        }else{
+            return res.json({ user: null });
+        }
+    }catch(error){
+        return res.status(500).json({ error: 'Internal server error' });
     }
+
+
 }
