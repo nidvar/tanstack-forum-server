@@ -23,6 +23,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: 'blank_profile.jpg',
     },
+    lastLogIn: {
+        type: Date,
+        default: Date.now,
+    },
     refreshToken: [
         {
             type: String

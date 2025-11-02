@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 dotenv.config();
 
 // -- First party imports
+import profileRouter from './routes/profileRoutes'
 import router from './routes/postRoutes';
 import userRouter from './routes/authRoutes';
 import { connectDB } from './config/db';
@@ -31,6 +32,7 @@ app.use(express.json());
 connectDB();
 
 // -- Routes
+app.use('/profile', profileRouter);
 app.use('/posts', router);
 app.use('/', userRouter);
 

@@ -34,24 +34,10 @@ export const allPosts = async function(req: Request, res: Response){
 export const singlePost = async function(req: Request, res: Response){
     try{
         const post: singlePostType | null = await Post.findById({_id: req.params.id});
-
         if(!post){
             throw new Error('no post found');
         };
-
-        const user = await User.findOne({ username: post.username});
-
-        const payload = {
-            data: post,
-            postAuthor: {
-                username: user?.username || '',
-                createdAt: user?.createdAt || '',
-                profilePic: user?.profilePic || '',
-            }
-        }
-
-        return res.json(payload);
-
+        return res.json(post);
     }catch(error: any){
         return res.status(500).json({
             message: error.message,
@@ -127,7 +113,7 @@ export const addComment = async function(req: Request, res: Response){
 }
 
 export const likeOrDislike = async function(req: Request, res: Response){
-    console.log('=========== body ' + Math.random(),req.body);
+    console.log('=========== body ' + Math.random(), req.body);
 
     return res.json({message: 'working!'})
 };
