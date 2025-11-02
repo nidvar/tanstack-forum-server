@@ -97,6 +97,7 @@ export const updateSinglePost = async function(req: Request, res: Response){
     }
     try{
         await Post.findByIdAndUpdate(req.params.id, updatedData);
+        return res.json({message: 'message edited'});
     }catch(error: any){
         return res.status(500).json({
             message: error.message,
