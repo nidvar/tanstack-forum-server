@@ -85,6 +85,8 @@ export const login = async function(req: Request, res: Response){
 
             user.refreshToken.push(refreshToken);
 
+            user.lastLogIn = new Date();
+
             await user.save();
 
             return res.json({message:'login successful!', data: await getUserData(user.email)});
