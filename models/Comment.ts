@@ -15,10 +15,6 @@ export const CommentSchema = new Schema({
         type: String,
         required: true,
     },
-    replies: {
-        type: [String],
-        default: []
-    },
 }, {timestamps: true});
 
 export const Comment = mongoose.model('Comment', CommentSchema);

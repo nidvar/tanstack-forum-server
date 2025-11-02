@@ -3,7 +3,6 @@ import {Request, Response } from 'express';
 import User from '../models/User';
 import Post from '../models/Post';
 import {Comment} from '../models/Comment';
-import Reply from '../models/Reply';
 
 import { generateToken, clearCookie, createNewCookie, verifyToken } from '../utils/utils';
 
@@ -13,14 +12,13 @@ const getUserData = async function(email:string){
     const userData = await Promise.all([
         Post.find({ email: email }),
         Comment.find({ email: email }),
-        Reply.find({ email: email }),
         User.findOne({ email: email })
     ]);
 
     return {
-        username: userData[3]?.username,
+        username: userData[2]?.username,
         email: email,
-        profilePic: userData[3]?.profilePic,
+        profilePic: userData[2]?.profilePic,
         postsData: [
             userData[0],
             userData[1],

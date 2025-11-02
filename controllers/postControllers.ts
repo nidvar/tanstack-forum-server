@@ -106,8 +106,12 @@ export const updateSinglePost = async function(req: Request, res: Response){
 };
 
 export const addComment = async function(req: Request, res: Response){
-    console.log('============= comment', + Math.random(), req.body);
-
+    const post = await Post.findOne({_id: req.body.postId});
+    if(!post){
+        return res.status(500).json({message:'post not found'});
+    }
+    post.comments.push(req.body);
+    await post.save();
     return res.json({message: 'comment recieved'})
 }
 
