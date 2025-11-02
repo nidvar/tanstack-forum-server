@@ -59,7 +59,7 @@ export const createSinglePost = async function(req: Request, res: Response){
                 email: user.email,
                 tags: req.body.tags,
                 img: {
-                    url: 'https://picsum.photos/200',
+                    url: req.body.img.url,
                     public_id: ''
                 }
             };
