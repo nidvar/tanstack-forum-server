@@ -48,7 +48,6 @@ export const singlePost = async function(req: Request, res: Response){
 
 // post a single post
 export const createSinglePost = async function(req: Request, res: Response){
-    console.log('create single post' + Math.random())
     try{
         const user = await User.findOne({ email: res.locals.email});
         if(user){
