@@ -6,5 +6,4 @@ import { findProfile } from '../controllers/profileControllers';
 
 router.get('/:id', findProfile);
 
-
 export default router;
