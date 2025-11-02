@@ -120,3 +120,16 @@ export const likeOrDislike = async function(req: Request, res: Response){
 
     return res.json({message: 'working!'})
 };
+
+export const deleteComment = async function(req: Request, res: Response){
+    const post = await Post.findOne({ _id: req.body.postId});
+
+    if(!post){
+        return res.status(500).json({message: 'post not found'})
+    }
+
+    post.comments.pull({ _id: req.params.id });
+    await post.save();
+
+    return res.json({message: 'comment deleted'})
+}

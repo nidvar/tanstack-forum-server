@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 
-import {allPosts, singlePost, createSinglePost, deleteSinglePost, updateSinglePost, likeOrDislike, addComment} from '../controllers/postControllers'
+import {allPosts, singlePost, createSinglePost, deleteSinglePost, updateSinglePost, likeOrDislike, addComment, deleteComment} from '../controllers/postControllers'
 
 import { requiresAuth } from '../middleware/requresAuth'
 
@@ -10,6 +10,7 @@ router.get('/:id', singlePost);
 
 router.post('/:id/likeOrDisLike/:likeOrDislike', requiresAuth, likeOrDislike);
 router.post('/:id/comment', requiresAuth, addComment);
+router.post('/comment/delete/:id', requiresAuth, deleteComment);
 
 router.post('/', requiresAuth, createSinglePost);
 router.delete('/:id', requiresAuth, deleteSinglePost);
