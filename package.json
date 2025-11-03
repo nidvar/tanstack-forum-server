@@ -4,9 +4,11 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "dev": "npx ts-node-dev server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "dev": "npx ts-node-dev server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
   "author": "",
   "license": "ISC",
   "description": "",
