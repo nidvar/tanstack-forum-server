@@ -36,19 +36,21 @@ export const verifyToken = function(payload: string, type: string, login?: strin
     }
 }
 
-export const clearCookie = function(response: any, name: string){
-    response.clearCookie(name, {
+export const createNewCookie = function(response: any, name: string, token: string, age: number): void {
+    response.cookie(name, token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        secure: process.env.NODE_ENV === 'production',  // HTTPS required in prod
+        sameSite: 'none',                               // allow cross-origin
+        maxAge: age,
+        path: '/',                                     // ensure cookie is available across backend
     });
 }
 
-export const createNewCookie = function(response: any, name: string, token: string, age: number): void{
-    response.cookie(name, token, {
+export const clearCookie = function(response: any, name: string) {
+    response.clearCookie(name, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: age,
+        sameSite: 'none',
+        path: '/',
     });
 }
