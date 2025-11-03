@@ -40,6 +40,10 @@ app.use('/profile', profileRouter);
 app.use('/posts', router);
 app.use('/', userRouter);
 
+app.get("/", (_req, res) => {
+  res.send("Server running successfully 🚀");
+});
+
 app.listen(PORT, () => {
     console.log('TypeScript server running on PORT ' + PORT);
 });
