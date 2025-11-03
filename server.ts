@@ -21,13 +21,19 @@ const app = express();
 
 const allowedOrigins = [
     'http://localhost:3000',
+    'https://jmern.vercel.app'
 ]
 
 app.use(cors({
-    origin: allowedOrigins,
-    credentials: true,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true); // allow requests with no origin (like Postman) or allowed origin
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
-
 app.use(cookieParser());
 
 app.use(express.json());
