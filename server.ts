@@ -19,8 +19,12 @@ const PORT = process.env.PORT || 8000;
 // -- Server setup
 const app = express();
 
+const allowedOrigins = [
+    'http://localhost:3000',
+]
+
 app.use(cors({
-    origin: process.env.FRONT_END_URL,
+    origin: allowedOrigins,
     credentials: true,
 }));
 
