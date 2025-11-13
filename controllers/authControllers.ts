@@ -116,10 +116,10 @@ export const logout = async function(req: Request, res: Response){
 
 export const authMe = async function(req: Request, res: Response){
     try{
-        if(!req.cookies.accessToken){
+        if(!req.cookies.refreshToken){
             return res.json({ user: null });
         };
-        const verification = verifyToken(req.cookies.accessToken, 'access');
+        const verification = verifyToken(req.cookies.refreshToken, 'refresh');
         if(verification && typeof verification !== 'string'){
             return res.json({ loggedIn: true, data: await getUserData(verification.email) });
         }else{
