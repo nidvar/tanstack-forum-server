@@ -116,6 +116,7 @@ export const logout = async function(req: Request, res: Response){
 
 export const authMe = async function(req: Request, res: Response){
     try{
+        console.log('cookies ===> ', req.cookies);
         if(!req.cookies.refreshToken){
             return res.json({ user: null });
         };
