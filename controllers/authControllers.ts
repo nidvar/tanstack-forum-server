@@ -136,7 +136,7 @@ export const authMe = async function(req: Request, res: Response){
                 }
             }
         }catch(error){
-            return res.json({ loggedIn: false, data: null });
+            return res.json({ loggedIn:null });
         }
     }
 }
