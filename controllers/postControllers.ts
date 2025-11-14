@@ -58,7 +58,7 @@ export const createSinglePost = async function(req: Request, res: Response){
                 email: user.email,
                 tags: req.body.tags,
                 img: {
-                    url: req.body.img.url,
+                    url: '',
                     public_id: ''
                 }
             };
