@@ -2,6 +2,8 @@ import Post from '../models/Post';
 import { Request, Response } from "express";
 import User from '../models/User';
 
+import { uploadToCloudinary } from '../utils/utils';
+
 // types
 type singlePostType = {
     title: string
@@ -12,7 +14,7 @@ type singlePostType = {
     updatedAt?: string
     tags?: []
     img:{
-        url: string,
+        url: string | undefined,
         public_id: string
     }
 }
@@ -51,6 +53,8 @@ export const createSinglePost = async function(req: Request, res: Response){
     try{
         const user = await User.findOne({ email: res.locals.email});
         if(user){
+            const imageURL = await uploadToCloudinary(req.body.img.url);
+
             const data: singlePostType = {
                 title: req.body.title,
                 content: req.body.content,
@@ -58,8 +62,8 @@ export const createSinglePost = async function(req: Request, res: Response){
                 email: user.email,
                 tags: req.body.tags,
                 img: {
-                    url: '',
-                    public_id: ''
+                    url: imageURL,
+                    public_id: req.body.public_id
                 }
             };
             await Post.create(data);

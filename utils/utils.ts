@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { runCloudinary } from '../lib/cloudinary';
 
 const secretCheck = function(){
     if(process.env.JWT_ACCESS_SECRET == undefined || process.env.JWT_REFRESH_SECRET == undefined){
@@ -51,4 +52,18 @@ export const createNewCookie = function(response: any, name: string, token: stri
         sameSite: 'strict',
         maxAge: age,
     });
+}
+
+export const uploadToCloudinary = async function(image: string){
+    try{
+        const cloud = runCloudinary();
+        const res = await cloud.uploader.upload(image);
+        if(res){
+            return res.secure_url;
+        }else{
+            return ''
+        }
+    }catch(error){
+        console.log('cloudinary error', error)
+    }
 }
