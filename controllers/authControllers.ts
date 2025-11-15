@@ -116,16 +116,27 @@ export const logout = async function(req: Request, res: Response){
 
 export const authMe = async function(req: Request, res: Response){
     try{
-        if(!req.cookies.accessToken){
-            return res.json({ user: null });
-        };
-        const verification = verifyToken(req.cookies.accessToken, 'access');
-        if(verification && typeof verification !== 'string'){
+        const accessToken = req.cookies.accessToken;
+        const verification: any = verifyToken(accessToken, 'access');
+        if(verification){
+            res.locals.email = verification.email
             return res.json({ loggedIn: true, data: await getUserData(verification.email) });
-        }else{
-            return res.json({ user: null });
         }
     }catch(error){
-        return res.status(500).json({ error: 'Internal server error' });
+        try{
+            const refreshToken = req.cookies.refreshToken;
+            const verification: any = verifyToken(refreshToken, 'refresh');
+            if(verification){
+                const user = await User.findOne({refreshToken: req.cookies.refreshToken});
+                if (user) {
+                    const accessToken = generateToken({id: verification._id, email: verification.email}, 'access');
+                    createNewCookie(res, 'accessToken', accessToken, 10 * 60 * 1000);
+                    res.locals.email = verification.email;
+                    return res.json({ loggedIn: true, data: await getUserData(verification.email) });
+                }
+            }
+        }catch(error){
+            return res.json({ loggedIn:null });
+        }
     }
 }
