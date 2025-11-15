@@ -63,7 +63,7 @@ export const uploadToCloudinary = async function(image: string){
         if(res){
             return res.secure_url;
         }else{
-            return ''
+            return null
         }
     }catch(error){
         console.log('cloudinary error', error)
