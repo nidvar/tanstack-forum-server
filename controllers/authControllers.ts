@@ -2,28 +2,24 @@ import {Request, Response } from 'express';
 
 import User from '../models/User';
 import Post from '../models/Post';
-import {Comment} from '../models/Comment';
 
 import { generateToken, clearCookie, createNewCookie, verifyToken, uploadToCloudinary } from '../utils/utils';
 
 import bcrypt from 'bcryptjs';
 
 const getUserData = async function(email:string){
-    const userData = await Promise.all([
-        Post.find({ email: email }),
-        Comment.find({ email: email }),
-        User.findOne({ email: email })
-    ]);
+    const user = await User.findOne({ email: email});
 
-    return {
-        username: userData[2]?.username,
-        email: email,
-        profilePic: userData[2]?.profilePic,
-        postsData: [
-            userData[0],
-            userData[1],
-            userData[2]
-        ]
+    if(user){
+        const postsData = await Promise.all([
+            Post.find({ username: user.username }),
+        ]);
+        return {
+            username: user.username,
+            email: email,
+            profilePic: user.profilePic,
+            posts: postsData[0]
+        }
     }
 }
 
