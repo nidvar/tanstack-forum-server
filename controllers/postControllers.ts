@@ -2,7 +2,7 @@ import Post from '../models/Post';
 import { Request, Response } from "express";
 import User from '../models/User';
 
-import { uploadToCloudinary } from '../utils/utils';
+import { uploadToCloudinary, deleteImageFromCloudinary } from '../utils/utils';
 
 // types
 type singlePostType = {
@@ -54,7 +54,6 @@ export const createSinglePost = async function(req: Request, res: Response){
         const user = await User.findOne({ email: res.locals.email});
         if(user){
             const imageURL = await uploadToCloudinary(req.body.img.url);
-
             const data: singlePostType = {
                 title: req.body.title,
                 content: req.body.content,
@@ -62,8 +61,8 @@ export const createSinglePost = async function(req: Request, res: Response){
                 email: user.email,
                 tags: req.body.tags,
                 img: {
-                    url: imageURL || '',
-                    public_id: req.body.public_id
+                    url: imageURL?.secure_url || '',
+                    public_id: imageURL?.public_id || ''
                 }
             };
             await Post.create(data);
@@ -82,7 +81,10 @@ export const createSinglePost = async function(req: Request, res: Response){
 // delete a single post
 export const deleteSinglePost = async function(req: Request, res: Response){
     try{
-        await Post.findByIdAndDelete({_id: req.params.id});
+        const deletedPost = await Post.findByIdAndDelete({_id: req.params.id});
+        if(deletedPost?.img?.public_id){
+            deleteImageFromCloudinary(deletedPost.img.public_id);
+        }
         return res.json({message: 'post deleted'});
     }catch(error: any){
         return res.status(500).json({

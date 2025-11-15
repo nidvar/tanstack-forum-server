@@ -61,11 +61,22 @@ export const uploadToCloudinary = async function(image: string){
         const cloud = runCloudinary();
         const res = await cloud.uploader.upload(image);
         if(res){
-            return res.secure_url;
+            return res;
         }else{
             return null
         }
     }catch(error){
         console.log('cloudinary error', error)
     }
-}
+};
+
+export const deleteImageFromCloudinary = async (publicId: string) => {
+    try {
+        const cloud = runCloudinary();
+        const result = await cloud.uploader.destroy(publicId);
+        return result;
+    } catch (error) {
+        console.error("Error deleting from Cloudinary:", error);
+        throw error;
+    }
+};

@@ -4,7 +4,7 @@ import User from '../models/User';
 import Post from '../models/Post';
 import {Comment} from '../models/Comment';
 
-import { generateToken, clearCookie, createNewCookie, verifyToken } from '../utils/utils';
+import { generateToken, clearCookie, createNewCookie, verifyToken, uploadToCloudinary } from '../utils/utils';
 
 import bcrypt from 'bcryptjs';
 
@@ -44,11 +44,13 @@ export const register = async function(req: Request, res: Response){
         const password = req.body.password;
         const hash = await bcrypt.hash(password, 10);
 
+        const imageURL = await uploadToCloudinary(req.body.profilePic);
+
         const user = {
             username: req.body.username,
             email: req.body.email,
             password: hash,
-            profilePic: 'https://robohash.org/4.123123=' + Math.random()*10
+            profilePic: imageURL?.secure_url || 'https://robohash.org/4.123123=' + Math.random()*10
         };
 
         await User.create(user);
