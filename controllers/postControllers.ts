@@ -1,11 +1,15 @@
-import Post from '../models/Post';
 import { Request, Response } from "express";
+
 import User from '../models/User';
+import Post from '../models/Post';
+import News from '../models/News';
 
 import { uploadToCloudinary, deleteImageFromCloudinary } from '../utils/utils';
 
 // types
 type singlePostType = {
+    placement_id?: string
+    _id?: string
     title: string
     content: string
     author: {
@@ -13,7 +17,7 @@ type singlePostType = {
         email: string
         profilePic: string
     }
-    createdAt?: string
+    createdAt?: Date
     updatedAt?: string
     tags?: []
     img:{
@@ -22,11 +26,78 @@ type singlePostType = {
     }
 }
 
+const grabTodaysNews = async function () {
+    const now = new Date();
+    const currentHour = now.getHours();
+    if (currentHour < 7) {
+        console.log('before 7');
+        try {
+            // grab data with NEWSDATA API
+            const res = await fetch(process.env.NEWSDATA_API + '&image=1');
+            const data = await res.json();
+
+            // if there is data coming from external API
+            if (data.results.length > 0) {
+                // adjust data to fit mongodb schema
+                const arr: singlePostType[] = [];
+                data.results.forEach((item: any) => {
+                    arr.push({
+                        placement_id: Math.random() * 100 + '1',
+                        title: item.title,
+                        content: item.description,
+                        author: {
+                            username: item.source_name,
+                            email: 'fromnewsapi@newsdata.io',
+                            profilePic: item.source_icon
+                        },
+                        createdAt: new Date(),
+                        tags: item.keywords?.slice(0, 5),
+                        img: {
+                            url: item.image_url,
+                            public_id: ''
+                        }
+                    })
+                });
+
+                // Deletes previous News data;
+                await News.deleteMany({});
+                console.log('deleted previous data');
+                // add new data to mongodb
+                await News.insertMany(arr);
+                return arr;
+            }else{
+                console.log('There is no data from endpoint');
+                return await News.find({});
+            }
+        } catch (error) {
+            console.log('fetch news error============>', error)
+        }
+    } else {
+        console.log('after 7')
+        return await News.find({});
+    }
+};
+
+
+
+// grab news
+export const grabNews = async function(req: Request, res: Response){
+    try{
+        const data = await grabTodaysNews();
+        return res.json(data);
+    }catch(error: any){
+        return res.status(500).json({
+            message: error.message,
+            name: error.name
+        })
+    }
+}
+
 // grab all posts
 export const allPosts = async function(req: Request, res: Response){
     try{
         const data: singlePostType[] = await Post.find({});
-        res.json(data);
+        return res.json(data);
     }catch(error: any){
         return res.status(500).json({
             message: error.message,

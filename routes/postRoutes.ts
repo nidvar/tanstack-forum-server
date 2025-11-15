@@ -1,9 +1,12 @@
 import express from 'express';
 const router = express.Router();
 
-import {allPosts, singlePost, createSinglePost, deleteSinglePost, updateSinglePost, likeOrDislike, addComment, deleteComment} from '../controllers/postControllers'
+import {allPosts, singlePost, createSinglePost, deleteSinglePost, updateSinglePost, likeOrDislike, addComment, deleteComment, grabNews} from '../controllers/postControllers'
 
 import { requiresAuth } from '../middleware/requresAuth'
+
+
+router.get('/news', grabNews);
 
 router.get('/', allPosts);
 router.get('/:id', singlePost);
