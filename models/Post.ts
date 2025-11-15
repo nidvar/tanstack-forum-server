@@ -13,9 +13,19 @@ const PostSchema = new Schema({
         type:String,
         required:true,
     },
-    username:{
-        type:String,
-        required:true,
+    author: {
+        username:{
+            type:String,
+            required:true,
+        },
+        email:{
+            type:String,
+            required:true,
+        },
+        profilePic:{
+            type:String,
+            required:true,
+        },
     },
     img: {
         url: {

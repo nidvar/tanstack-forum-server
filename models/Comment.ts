@@ -15,6 +15,10 @@ export const CommentSchema = new Schema({
         type: String,
         required: true,
     },
+    profilePic: {
+        type: String,
+        required: true,
+    }
 }, {timestamps: true});
 
 export const Comment = mongoose.model('Comment', CommentSchema);

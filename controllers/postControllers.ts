@@ -8,8 +8,11 @@ import { uploadToCloudinary, deleteImageFromCloudinary } from '../utils/utils';
 type singlePostType = {
     title: string
     content: string
-    email: string
-    username: string
+    author: {
+        username: string
+        email: string
+        profilePic: string
+    }
     createdAt?: string
     updatedAt?: string
     tags?: []
@@ -57,8 +60,11 @@ export const createSinglePost = async function(req: Request, res: Response){
             const data: singlePostType = {
                 title: req.body.title,
                 content: req.body.content,
-                username: user.username,
-                email: user.email,
+                author:{
+                    username: user.username,
+                    email: user.email,
+                    profilePic: user.profilePic
+                },
                 tags: req.body.tags,
                 img: {
                     url: imageURL?.secure_url || '',
