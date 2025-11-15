@@ -1,17 +1,26 @@
 import { Request, Response } from "express";
 
 import User from '../models/User';
+import Post from '../models/Post';
 
 export const findProfile = async function(req: Request, res: Response){
     try{
-        const userData = await User.findOne({username: req.params.id});
+        const user = await User.findOne({username: req.params.id});
 
-        return res.json({
-            username: userData?.username || 'no-user-found',
-            createdAt: userData?.createdAt || '',
-            profilePic: userData?.profilePic || '',
-            lastLogIn: userData?.lastLogIn || ''
-        });
+        if(user){
+            const postsData = await Promise.all([
+                Post.find({ username: user.username }),
+            ]);
+
+            return res.json({
+                username: user?.username || 'no-user-found',
+                createdAt: user?.createdAt || '',
+                profilePic: user?.profilePic || '',
+                lastLogIn: user?.lastLogIn || '',
+                posts: postsData[0]
+            });
+        }
+
     }catch(error){
         return res.status(500).json({message: error})
     }
