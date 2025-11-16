@@ -4,26 +4,21 @@ import User from '../models/User';
 import Post from '../models/Post';
 import News from '../models/News';
 
-import { uploadToCloudinary, deleteImageFromCloudinary } from '../utils/utils';
+import { uploadToCloudinary, deleteImageFromCloudinary, singlePostType } from '../utils/utils';
 
-// types
-type singlePostType = {
-    placement_id?: string
-    _id?: string
-    title: string
-    content: string
-    author: {
-        username: string
-        email: string
-        profilePic: string
-    }
-    createdAt?: Date
-    updatedAt?: string
-    tags?: []
-    img:{
-        url: string | undefined,
-        public_id: string
-    }
+const deleteOldNews = async function(){
+    const newsPosts = await Post.find({ "author.email": "fromnewsapi@newsdata.io" });
+    if(newsPosts.length > 10){
+        const deleteableIds: Object[] = [];
+        newsPosts.forEach((item)=>{
+            if(item.comments && item.comments.length > 0){
+            }else{
+                deleteableIds.push(item._id);
+            }
+        });
+        const idsToDelete = deleteableIds.slice(0, Math.ceil(deleteableIds.length / 2));
+        await Post.deleteMany({ _id: { $in: idsToDelete } });
+    };
 }
 
 const grabTodaysNews = async function () {
@@ -42,7 +37,6 @@ const grabTodaysNews = async function () {
                 const arr: singlePostType[] = [];
                 data.results.forEach((item: any) => {
                     arr.push({
-                        placement_id: Math.random() * 100 + '1',
                         title: item.title,
                         content: item.description,
                         author: {
@@ -50,7 +44,6 @@ const grabTodaysNews = async function () {
                             email: 'fromnewsapi@newsdata.io',
                             profilePic: item.source_icon
                         },
-                        createdAt: new Date(),
                         tags: item.keywords?.slice(0, 5),
                         img: {
                             url: item.image_url,
@@ -58,44 +51,23 @@ const grabTodaysNews = async function () {
                         }
                     })
                 });
-
-                // Deletes previous News data;
-                await News.deleteMany({});
-                console.log('deleted previous data');
-                // add new data to mongodb
-                await News.insertMany(arr);
-                return arr;
+                await Post.insertMany(arr);
             }else{
                 console.log('There is no data from endpoint');
-                return await News.find({});
             }
         } catch (error) {
             console.log('fetch news error============>', error)
         }
     } else {
-        console.log('after 7')
-        return await News.find({});
+        console.log('after 7');
     }
 };
-
-
-
-// grab news
-export const grabNews = async function(req: Request, res: Response){
-    try{
-        const data = await grabTodaysNews();
-        return res.json(data);
-    }catch(error: any){
-        return res.status(500).json({
-            message: error.message,
-            name: error.name
-        })
-    }
-}
 
 // grab all posts
 export const allPosts = async function(req: Request, res: Response){
     try{
+        await grabTodaysNews();
+        await deleteOldNews();
         const data: singlePostType[] = await Post.find({});
         return res.json(data);
     }catch(error: any){

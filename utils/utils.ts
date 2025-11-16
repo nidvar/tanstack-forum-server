@@ -80,3 +80,19 @@ export const deleteImageFromCloudinary = async (publicId: string) => {
         throw error;
     }
 };
+
+// types
+export type singlePostType = {
+    title: string
+    content: string
+    author: {
+        username: string
+        email: string
+        profilePic: string
+    }
+    tags?: []
+    img:{
+        url: string | undefined,
+        public_id: string
+    }
+}
