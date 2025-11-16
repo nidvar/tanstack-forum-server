@@ -171,6 +171,7 @@ export const addComment = async function(req: Request, res: Response){
         return res.status(500).json({message:'post not found'});
     }
     post.comments.push(req.body);
+    post.updatedAt = new Date();
     await post.save();
     return res.json({message: 'comment recieved'})
 }
