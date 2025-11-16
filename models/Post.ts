@@ -57,6 +57,10 @@ const PostSchema = new Schema({
         type:Date,
         default:Date.now
     },
+    junk: {
+        type: Schema.Types.Mixed,
+        default: {}
+    }
 });
 
 const Post = mongoose.model('Post', PostSchema);

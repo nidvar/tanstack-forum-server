@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 
 import User from '../models/User';
 import Post from '../models/Post';
-import News from '../models/News';
 
 import { uploadToCloudinary, deleteImageFromCloudinary, singlePostType } from '../utils/utils';
 
@@ -28,7 +27,7 @@ const grabTodaysNews = async function () {
         console.log('before 7');
         try {
             // grab data with NEWSDATA API
-            const res = await fetch(process.env.NEWSDATA_API + '&image=1');
+            const res = await fetch(process.env.NEWSDATA_API + '&removeduplicate=1');
             const data = await res.json();
 
             // if there is data coming from external API
@@ -48,6 +47,11 @@ const grabTodaysNews = async function () {
                         img: {
                             url: item.image_url,
                             public_id: ''
+                        },
+                        junk: {
+                            link: item.link,
+                            source: item.source_url,
+                            creator: item.creator,
                         }
                     })
                 });

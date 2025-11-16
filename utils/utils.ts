@@ -94,5 +94,6 @@ export type singlePostType = {
     img:{
         url: string | undefined,
         public_id: string
-    }
+    },
+    junk?: any
 }
