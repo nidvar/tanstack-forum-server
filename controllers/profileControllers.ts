@@ -6,21 +6,24 @@ import Post from '../models/Post';
 export const findProfile = async function(req: Request, res: Response){
     try{
         const user = await User.findOne({username: req.params.id});
-
         if(user){
-            const postsData = await Promise.all([
-                Post.find({ username: user.username }),
-            ]);
-
+            const postsData = await Post.find({ "author.username": user.username });
             return res.json({
                 username: user?.username || 'no-user-found',
                 createdAt: user?.createdAt || '',
                 profilePic: user?.profilePic || '',
                 lastLogIn: user?.lastLogIn || '',
-                posts: postsData[0]
+                posts: postsData
+            });
+        }else{
+            return res.json({
+                username: 'no-user-found',
+                createdAt: '',
+                profilePic: '',
+                lastLogIn: '',
+                posts: ''
             });
         }
-
     }catch(error){
         return res.status(500).json({message: error})
     }
