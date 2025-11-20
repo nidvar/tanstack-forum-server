@@ -7,7 +7,9 @@ import { uploadToCloudinary, deleteImageFromCloudinary, singlePostType } from '.
 
 const deleteOldNews = async function(){
     const newsPosts = await Post.find({ "author.email": "fromnewsapi@newsdata.io" });
-    await Post.deleteMany({ _id: { $in: newsPosts } });
+    if(newsPosts.length > 20){
+        await Post.deleteMany({ _id: { $in: newsPosts } });
+    };
 }
 
 const grabTodaysNews = async function () {
