@@ -7,14 +7,7 @@ import { uploadToCloudinary, deleteImageFromCloudinary, singlePostType } from '.
 
 const deleteOldNews = async function(){
     const newsPosts = await Post.find({ "author.email": "fromnewsapi@newsdata.io" });
-    const deleteableIds: Object[] = [];
-    newsPosts.forEach((item)=>{
-        if(item.comments && item.comments.length > 0){
-        }else{
-            deleteableIds.push(item._id);
-        }
-    });
-    await Post.deleteMany({ _id: { $in: deleteableIds } });
+    await Post.deleteMany({ _id: { $in: newsPosts } });
 }
 
 const grabTodaysNews = async function () {
@@ -22,7 +15,6 @@ const grabTodaysNews = async function () {
     const currentHour = now.getHours();
     await deleteOldNews();
     if (currentHour < 7) {
-        console.log('before 7');
         try {
             // grab data with NEWSDATA API
             const res = await fetch(process.env.NEWSDATA_API + '&removeduplicate=1');
@@ -32,6 +24,7 @@ const grabTodaysNews = async function () {
             if (data.results.length > 0) {
                 // adjust data to fit mongodb schema
                 const arr: singlePostType[] = [];
+
                 data.results.forEach((item: any) => {
                     arr.push({
                         title: item.title,
@@ -53,8 +46,12 @@ const grabTodaysNews = async function () {
                         }
                     })
                 });
-                const arr2 = arr.slice(0, 4);
-                await Post.insertMany(arr2);
+                const arr2 = arr.slice(0, 6);
+                const unique = arr2.filter(
+                (obj, index, self) =>
+                    index === self.findIndex(o => o.title?.trim().toLowerCase() === obj.title?.trim().toLowerCase())
+                );
+                await Post.insertMany(unique);
             }else{
                 console.log('There is no data from endpoint');
             }
