@@ -7,22 +7,20 @@ import { uploadToCloudinary, deleteImageFromCloudinary, singlePostType } from '.
 
 const deleteOldNews = async function(){
     const newsPosts = await Post.find({ "author.email": "fromnewsapi@newsdata.io" });
-    if(newsPosts.length > 10){
-        const deleteableIds: Object[] = [];
-        newsPosts.forEach((item)=>{
-            if(item.comments && item.comments.length > 0){
-            }else{
-                deleteableIds.push(item._id);
-            }
-        });
-        const idsToDelete = deleteableIds.slice(0, Math.ceil(deleteableIds.length / 2));
-        await Post.deleteMany({ _id: { $in: idsToDelete } });
-    };
+    const deleteableIds: Object[] = [];
+    newsPosts.forEach((item)=>{
+        if(item.comments && item.comments.length > 0){
+        }else{
+            deleteableIds.push(item._id);
+        }
+    });
+    await Post.deleteMany({ _id: { $in: deleteableIds } });
 }
 
 const grabTodaysNews = async function () {
     const now = new Date();
     const currentHour = now.getHours();
+    await deleteOldNews();
     if (currentHour < 7) {
         console.log('before 7');
         try {
@@ -55,7 +53,8 @@ const grabTodaysNews = async function () {
                         }
                     })
                 });
-                await Post.insertMany(arr);
+                const arr2 = arr.slice(0, 4);
+                await Post.insertMany(arr2);
             }else{
                 console.log('There is no data from endpoint');
             }
@@ -71,7 +70,6 @@ const grabTodaysNews = async function () {
 export const allPosts = async function(req: Request, res: Response){
     try{
         await grabTodaysNews();
-        await deleteOldNews();
         const data: singlePostType[] = await Post.find({});
         return res.json(data);
     }catch(error: any){
