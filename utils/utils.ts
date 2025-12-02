@@ -40,17 +40,17 @@ export const verifyToken = function(payload: string, type: string, login?: strin
 export const createNewCookie = function(response: any, name: string, token: string, age: number): void {
     response.cookie(name, token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',  // HTTPS required in prod
-        sameSite: 'none',                               // allow cross-origin
+        secure: true,
+        sameSite: 'none',
         maxAge: age,
-        path: '/',                                     // ensure cookie is available across backend
+        path: '/',
     });
 }
 
 export const clearCookie = function(response: any, name: string) {
     response.clearCookie(name, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         path: '/',
     });
