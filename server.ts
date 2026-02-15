@@ -1,65 +1,77 @@
-// -- Third party imports
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser';
-import path from 'path';
-
-// -- Load environment variables
+// --------------------
+// Third-party imports
+// --------------------
+import dotenv from "dotenv";
 dotenv.config();
 
-// -- First party imports
-import profileRouter from './routes/profileRoutes';
-import router from './routes/postRoutes';
-import userRouter from './routes/authRoutes';
-import { connectDB } from './config/db';
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import path from "path";
 
-// -- Configuration
+// --------------------
+// First-party imports
+// --------------------
+import profileRouter from "./routes/profileRoutes";
+import router from "./routes/postRoutes";
+import userRouter from "./routes/authRoutes";
+import { connectDB } from "./config/db";
+
+// --------------------
+// Config
+// --------------------
+const app = express();
 const PORT = process.env.PORT || 8000;
 
-// -- Server setup
-const app = express();
+// Important for Render
+const __dirnameResolved = path.resolve();
 
-// -- Handle CORS
-const allowedOrigins = [
-  'http://localhost:3000',      // frontend dev
-  'https://jmern.vercel.app'    // deployed frontend
-];
+// --------------------
+// Middleware
+// --------------------
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? true
+        : "http://localhost:3000",
+    credentials: true,
+  })
+);
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-}));
-
-// -- Middleware
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// -- Database connection
+// --------------------
+// DB
+// --------------------
 connectDB();
 
-// -- API Routes
-app.use('/profile', profileRouter);
-app.use('/posts', router);
-app.use('/', userRouter);
+// --------------------
+// API Routes
+// --------------------
+app.use("/profile", profileRouter);
+app.use("/posts", router);
+app.use("/", userRouter);
 
-// -- Serve frontend static files
-const clientBuildPath = path.join(__dirname, 'client');
-app.use(express.static(clientBuildPath));
+// --------------------
+// Serve frontend (ONLY in production)
+// --------------------
+if (process.env.NODE_ENV === "production") {
+  const clientPath = path.join(__dirnameResolved, "client");
 
-// -- SPA catch-all route (Express 5 compatible)
-app.all('*', (_req, res) => {
-  res.sendFile(path.join(clientBuildPath, 'index.html'));
-});
+  app.use(express.static(clientPath));
 
-// -- Start server
+  // Express 5 SAFE catch-all
+  app.use((req, res) => {
+    res.sendFile(path.join(clientPath, "index.html"));
+  });
+}
+
+// --------------------
+// Start server
+// --------------------
 app.listen(PORT, () => {
-  console.log(`Server running on PORT ${PORT} 🚀`);
+  console.log(`Server running on port ${PORT}`);
 });
