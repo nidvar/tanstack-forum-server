@@ -1,1 +1,0 @@
-import{j as e,L as n}from"./index-D3DWexQO.js";function o(){return e.jsx(e.Fragment,{children:e.jsxs("div",{className:"logout-page",children:[e.jsx("p",{children:"Successfully logged out"}),e.jsx(n,{to:"/",className:"center blue underline",children:"Back"})]})})}export{o as component};
