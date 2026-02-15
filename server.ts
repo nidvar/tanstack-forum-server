@@ -51,12 +51,11 @@ app.use('/posts', router);
 app.use('/', userRouter);
 
 // -- Serve frontend static files
-// __dirname works in CommonJS
 const clientBuildPath = path.join(__dirname, 'client');
 app.use(express.static(clientBuildPath));
 
-// SPA catch-all route
-app.get('*', (_req, res) => {
+// -- SPA catch-all route (Express 5 compatible)
+app.all('*', (_req, res) => {
   res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 
