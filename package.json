@@ -7,7 +7,8 @@
     "dev": "npx ts-node-dev server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "npm run build"
   },
   "author": "",
   "license": "ISC",

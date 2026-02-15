@@ -16,7 +16,7 @@ const grabTodaysNews = async function () {
     const now = new Date();
     const currentHour = now.getHours();
     await deleteOldNews();
-    if (currentHour < 7) {
+    if ((currentHour >= 5 && currentHour < 7) || (currentHour >= 17 && currentHour < 19)) {
         try {
             // grab data with NEWSDATA API
             const res = await fetch(process.env.NEWSDATA_API + '&removeduplicate=1');

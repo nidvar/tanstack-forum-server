@@ -3,12 +3,13 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 
 // -- Load environment variables
 dotenv.config();
 
 // -- First party imports
-import profileRouter from './routes/profileRoutes'
+import profileRouter from './routes/profileRoutes';
 import router from './routes/postRoutes';
 import userRouter from './routes/authRoutes';
 import { connectDB } from './config/db';
@@ -19,38 +20,47 @@ const PORT = process.env.PORT || 8000;
 // -- Server setup
 const app = express();
 
+// -- Handle CORS
 const allowedOrigins = [
-    'http://localhost:3000',
-    'https://jmern.vercel.app'
-]
+  'http://localhost:3000',      // frontend dev
+  'https://jmern.vercel.app'    // deployed frontend
+];
 
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); // allow requests with no origin (like Postman) or allowed origin
+      callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
 }));
-app.use(cookieParser());
 
+// -- Middleware
+app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// -- DB connection
+// -- Database connection
 connectDB();
 
-// -- Routes
+// -- API Routes
 app.use('/profile', profileRouter);
 app.use('/posts', router);
 app.use('/', userRouter);
 
-app.get("/", (_req, res) => {
-  res.send("Server running successfully 🚀");
+// -- Serve frontend static files
+// __dirname works in CommonJS
+const clientBuildPath = path.join(__dirname, 'client');
+app.use(express.static(clientBuildPath));
+
+// SPA catch-all route
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 
+// -- Start server
 app.listen(PORT, () => {
-    console.log('TypeScript server running on PORT ' + PORT);
+  console.log(`Server running on PORT ${PORT} 🚀`);
 });
